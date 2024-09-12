@@ -10,6 +10,9 @@ module.exports = {
       animation: {
         blob: "blob 7s infinite",
       },
+      animation: {
+        'spin-slow': 'spin 20s linear infinite',
+      },
       keyframes: {
         blob: {
           "0%": {
