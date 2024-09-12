@@ -1,6 +1,7 @@
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
+import { NextResponse } from 'next/server';
 
-export async function GET(req) {
+export async function POST(req) {
     const data = await req.json()
     const source = data.source //link to page being scraped
     try {
@@ -8,12 +9,8 @@ export async function GET(req) {
         const $ = cheerio.load(data);
         const scrapedData = $('p').text();
 
-        res.status(200).json({ data: scrapedData });
+        return NextResponse.json({ data: scrapedData});
     } catch (error) {
-        res.status(500).json({ error: 'Error scraping data' });
+        return NextResponse.json({ data: error.message });
     }
-}
-
-function clean(text){
-
 }
