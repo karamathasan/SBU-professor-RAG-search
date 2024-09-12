@@ -4,11 +4,11 @@ export async function GET(req) {
     const data = await req.json()
     const source = data.source //link to page being scraped
     try {
-        const { data } = await fetch('https://example.com');
+        const { data } = await fetch(source);
         const $ = cheerio.load(data);
-        const scrapedData = $('selector').text(); // Modify to select the data you need
+        const scrapedData = $('p').text();
 
-        res.status(200).json({ data: scrapedData }); // or { data: results }
+        res.status(200).json({ data: scrapedData });
     } catch (error) {
         res.status(500).json({ error: 'Error scraping data' });
     }
