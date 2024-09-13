@@ -62,8 +62,8 @@ export default function Home() {
                   onChange={(e) => setLink(e.target.value)}
                 />
                 <div className="flex flex-row justify-center items-center space-x-[1rem]">
-                  <button type="button" onClick={() => setOpen(false)} className="text-[#333] bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center transition ease-in-out duration-300">Cancel</button>
-                  <button type="submit" onClick={scrape} className="text-white bg-[#4bacfc] hover:bg-[#4480f7] focus:ring-4 focus:outline-none font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center transition ease-in-out duration-300">Confirm</button>
+                  <button type="button" onClick={() => setOpen(false)} className="text-[#333] bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none font-medium rounded-[10px] text-sm w-full sm:w-auto px-5 py-2.5 text-center transition ease-in-out duration-300">Cancel</button>
+                  <button type="submit" onClick={scrape} className="text-white bg-[#bb0000] hover:bg-[#990000] focus:ring-4 focus:outline-none font-medium rounded-[10px] text-sm w-full sm:w-auto px-5 py-2.5 text-center transition ease-in-out duration-300">Confirm</button>
                 </div>
               </div>
             </DialogPanel>
@@ -109,7 +109,7 @@ export default function Home() {
           <Background/>
           <form className="flex flex-row space-x-2 z-[2]" onSubmit={(e) => e.preventDefault()}>
             <input type="text" placeholder="Message" className="w-full border rounded-[25px] py-[0.5rem] px-[1rem]" value={input} onChange={(e)=>{setInput(e.target.value)}} />
-            <button type="submit" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-[10px] p-2 " onClick={sendMessage}>Send</button>
+            <button type="submit" className="bg-gradient-to-r from-red-500 to-red-600 text-white rounded-[10px] p-2 " onClick={sendMessage}>Send</button>
           </form>
         </motion.div>
       </div>

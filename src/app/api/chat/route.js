@@ -18,5 +18,8 @@ export async function POST(req) {
         encoding_format: 'float',
       })
 
-    const res = await index.query({topK:3,vector:embedding})
+    const res = await index.query({
+      topK:3,
+      vector:embedding
+    })
 }
