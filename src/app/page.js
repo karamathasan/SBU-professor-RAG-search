@@ -23,10 +23,30 @@ export default function Home() {
       body: JSON.stringify({
         source:link
       })
-    }).then((data)=>{
-      data.json().then((obj)=>console.log(obj.data))
+    }).then(async (res)=>{
+      const json = await res.json()
+      console.log(json.data)
+      return json.data
+    }).then((professor)=>{
+      // upsert(professor)
     }).then(()=>{
       setOpen(false)
+    })
+  }
+
+  const upsert = async (professor)=>{
+    if (!data){return}
+    await fetch("/api/upsert",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify({
+        professor:professor
+      }).then(async (res)=>{
+        const json = await res.json()
+        console.log(json.data)
+      })
     })
   }
 
