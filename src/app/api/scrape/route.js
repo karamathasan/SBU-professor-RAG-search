@@ -54,11 +54,8 @@ export async function POST(req) {
         if (source.includes("https://www.ratemyprofessors.com/")){
             scrapedData = parseRMP(html)
         } else {
-            console.log("not from ratemyprofessors.com")
-            const $ = cheerio.load(html);
-            scrapedData = $('div').text()
+            return NextResponse.json({message:"not from ratemyprofessors.com"})
         }
-        // console.log(scrapedData)
         return NextResponse.json({ data: scrapedData});
     } catch (error) {
         return NextResponse.json({ data: error.message });

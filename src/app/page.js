@@ -8,11 +8,14 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import Background from "./components/background";
 import { Dialog,DialogPanel,DialogBackdrop } from "@headlessui/react";
-import Typewriter from "typewriter-effect";
 
 export default function Home() {
   const [input,setInput] = useState("")
-  const [messages,setMessages] = useState([{role:"assistant", content:"Hello, I am your AI professor search assistant. How can I help you?"}])
+  const [messages,setMessages] = useState([])
+  const [link,setLink] = useState("")
+
+  const [scrapeOpen,setScrapeOpen] = useState(false)
+  const [reviewOpen,setReviewOpen] = useState(false)
 
   const scrape = async()=>{
     if (!link){return}
@@ -26,10 +29,11 @@ export default function Home() {
       })
     }).then(async (res)=>{
       const json = await res.json()
-      console.log(json.data)
       return json.data
     }).then(async (professor)=>{
-      await upsert(professor)
+      if (professor){
+        await upsert(professor)
+      }
     }).then(()=>{
       setScrapeOpen(false)
     })
@@ -47,7 +51,7 @@ export default function Home() {
       })
     }).then(async (res)=>{
       const json = await res.json()
-      console.log(json.data)
+      // console.log(json.data)
     })
   }
 
@@ -70,7 +74,7 @@ export default function Home() {
       })
     }).then(async (res)=>{
       const json = await res.json()
-      console.log(json.data)
+      // console.log(json.data)
       return json
     }).then((json)=>{
       const responseMsg = json.data
@@ -84,10 +88,18 @@ export default function Home() {
     })
   }
 
-  const [link,setLink] = useState("")
+  const init = ()=>{
+    setMessages([{role:"assistant", content:"Hello, I am your AI professor search assistant. How can I help you?"}])
+  }
 
-  const [scrapeOpen,setScrapeOpen] = useState(false)
-  const [reviewOpen,setReviewOpen] = useState(false)
+  const clearChat = ()=>{
+    setMessages([])
+    init()
+  }
+
+  useEffect(()=>{
+    init()
+  },[])
 
   return (
     <main className="relative">
@@ -106,11 +118,11 @@ export default function Home() {
               <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 flex flex-col justify-center items-center w-full space-y-[1rem]">
                 <div className="flex flex-col justify-center items-center w-full">
                   <label className="text-[30px] font-[500]">Add a link to a professor</label>
-                  <span className="text-[15px]"> preferrably link to a RateMyProfessor page</span>
+                  <span className="text-[15px]">must be a link to a RateMyProfessor page</span>
                 </div>
                 <input className="w-full p-[1rem] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg lue-500 block focus:outline-none"
                   placeholder="Paste Link Here"
-                  id="deck-title"
+                  id="link"
                   type="text"
                   value={link}
                   onChange={(e) => setLink(e.target.value)}
@@ -127,7 +139,7 @@ export default function Home() {
 
       {/* add professor review */}
 
-      {/* <Dialog open={open} onClose={setOpen} className="relative z-10">
+      {/* <Dialog open={reviewOpen} onClose={setReviewOpen} className="relative z-10">
         <DialogBackdrop
           transition
           className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
@@ -140,17 +152,17 @@ export default function Home() {
               className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-lg data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
             >
               <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 flex flex-col justify-center items-center w-full space-y-[1rem]">
-                <label className="text-[30px] font-[500]">Add a link to a professor</label>
+                <label className="text-[30px] font-[500]">Add a review to a professor</label>
                 <input className="w-full p-[1rem] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg lue-500 block focus:outline-none"
                   placeholder="Paste Link Here"
-                  id="deck-title"
+                  id="link"
                   type="text"
                   value={link}
                   onChange={(e) => setLink(e.target.value)}
                 />
                 <div className="flex flex-row justify-center items-center space-x-[1rem]">
-                  <button type="button" onClick={() => setOpen(false)} className="text-[#333] bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none font-medium rounded-[10px] text-sm w-full sm:w-auto px-5 py-2.5 text-center transition ease-in-out duration-300">Cancel</button>
-                  <button type="submit" onClick={scrape} className="text-white bg-[#bb0000] hover:bg-[#990000] focus:ring-4 focus:outline-none font-medium rounded-[10px] text-sm w-full sm:w-auto px-5 py-2.5 text-center transition ease-in-out duration-300">Confirm</button>
+                  <button type="button" onClick={() => setReviewOpen(false)} className="text-[#333] bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none font-medium rounded-[10px] text-sm w-full sm:w-auto px-5 py-2.5 text-center transition ease-in-out duration-300">Cancel</button>
+                  <button type="submit" onClick={()=>{}} className="text-white bg-[#bb0000] hover:bg-[#990000] focus:ring-4 focus:outline-none font-medium rounded-[10px] text-sm w-full sm:w-auto px-5 py-2.5 text-center transition ease-in-out duration-300">Confirm</button>
                 </div>
               </div>
             </DialogPanel>
@@ -168,10 +180,18 @@ export default function Home() {
           <h1 className="font-medium text-2xl"> | College of Engineering and Applied Sciences</h1>
         </div>
 
-        <div className="flex flex-row justify-around w-full h-[72px] bg-[#990000] font-medium text-white">
-          <button onClick={()=>{setScrapeOpen(true)}} className="bg-[#990000] hover:bg-[#aa0000]"> Scrape Link </button>
-          <button onClick={()=>{setMessages([{role:"assistant", content:"Hello, I am your AI professor search assistant. How can I help you?"}])}} className="bg-[#990000] hover:bg-[#aa0000]"> Reset Chat</button>
+        <div className="flex justify-center w-full min-h-[3.5rem] bg-[#990000] font-medium text-white ">
+          <div className="flex flex-row justify-around w-full max-w-[80vw] h-full">
+            <div className="basis-1/2 flex flex-row justify-start">
+              <button onClick={()=>{setScrapeOpen(true)}} className="bg-[#990000] hover:bg-[#aa0000] h-full px-8"> Scrape Link </button>
+              {/* <button onClick={()=>{setReviewOpen(true)}} className="bg-[#990000] hover:bg-[#aa0000] h-full px-8"> Add a Review </button> */}
+            </div>
+            <div className="basis-1/2 flex flex-row justify-end">
+              <button onClick={clearChat} className="bg-[#990000] hover:bg-[#aa0000] px-8"> Reset Chat</button>
+            </div>
+          </div>
         </div>
+        
         <br className="py-8"></br>
       
         <motion.div

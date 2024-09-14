@@ -12,7 +12,7 @@
 
 const Background = () => {
     return (
-        <div className="absolute  w-full h-full max-w-[60vw] max-h-[60vh] z-[1]">            
+        <div className="absolute  w-full h-full max-w-[60vw] max-h-[62vh] z-[1]">            
             <div className="absolute top-0 left-0 w-full h-full bg-red-300 mix-blend-multiply filter blur-xl opacity-70 animate-blob ray one"></div>
             <div className="absolute top-0 left-0 w-full h-full bg-red-300 mix-blend-multiply filter blur-xl opacity-70 animate-blob ray two"></div>
             <div className="absolute top-0 left-0 w-full h-full bg-red-300 mix-blend-multiply filter blur-xl opacity-70 animate-blob ray three"></div>
