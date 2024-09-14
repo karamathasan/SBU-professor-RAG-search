@@ -4,7 +4,18 @@ import { NextResponse } from "next/server";
 import dotenv from 'dotenv'
 dotenv.config()
 const systemPrompt=`
+You are a rate my professor agent to help students find classes, that takes in user questions and answers them.
+For every user question, the top 3 professors that match the user question are returned.
+Use them to answer the question if needed.
 
+Make sure to:
+- Make objective claims.
+- Never make negative or potentially rude comments about professors.
+
+When making recommendations, be sure to account for:
+- Course relevance and the professor's area of specialization.
+- Past student reviews or ratings.
+- The professor's teaching methodology and experience level.
 `
 
 export async function POST(req) {
@@ -14,19 +25,23 @@ export async function POST(req) {
     const openai = new OpenAI({apiKey:process.env.OPENAI_API_KEY})
 
     const pc = new Pinecone({apiKey:process.env.PINECONE_API_KEY})
-    const index = pc.index('professors')
+    const index = pc.index('scraper')
+
+    let latest = messages.pop().content
 
     const embedding = await openai.embeddings.create({
         model: 'text-embedding-3-small',
-        input: text,
+        input: latest,
         encoding_format: 'float',
       })
 
     const results = await index.query({
       topK:3,
       vector:embedding.data[0].embedding,
+      includeMetadata:true
     })
 
+    //TODO: prevent this message from becoming too long
     let context = ''
     results.matches.forEach((match)=>{
       context +=`
@@ -34,19 +49,22 @@ export async function POST(req) {
       Professor: ${match.id}
       Department: ${match.metadata.department}
       Courses: ${match.metadata.courses}
-      Reviews: ${match.metadata.reviews}
+      Ratings: ${match.metadata.ratings}
+      Reviews: ${match.metadata.reviews}      
       `
     })
-    const latest = messages.pop().content
-    latest.join(context)
 
-    const completion = openai.completions.create({
+    latest += context
+    const completion = await openai.chat.completions.create({
       messages:[
         {role:"system",content:systemPrompt},
-        messages,
-        {role:"user",context:latest}
+        ...messages,
+        {role:"user",content:latest}
       ],
-      model: "gpt-3.5-turbo-instruct",
+      model: "gpt-4",
       stream: false
     })
+    const chatResponse = completion.choices[0].message.content
+    console.log(chatResponse)
+    return NextResponse.json({data:chatResponse})
 }
