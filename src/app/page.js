@@ -8,6 +8,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import Background from "./components/background";
 import { Dialog,DialogPanel,DialogBackdrop } from "@headlessui/react";
+import toast from "react-hot-toast";
 
 export default function Home() {
   const [input,setInput] = useState("")
@@ -28,11 +29,15 @@ export default function Home() {
         source:link
       })
     }).then(async (res)=>{
-      const json = await res.json()
-      return json.data
-    }).then(async (professor)=>{
-      if (professor){
-        await upsert(professor)
+      return res.json()
+    }).then(async (json)=>{
+      const professor = json.data
+      const message = json.message
+      if (professor !== "" && message){
+        toast.success("Data successfully scraped!")
+        // await upsert(professor)
+      } else {
+        toast.error(message)
       }
     }).then(()=>{
       setScrapeOpen(false)

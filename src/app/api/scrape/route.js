@@ -14,6 +14,14 @@ import { NextResponse } from 'next/server';
  */
 function parseRMP(html){
     const $ = cheerio.load(html)
+    const school = $("div:first > div:first > div:first > div:eq(2) > div:eq(1) > div:first > div:eq(1) > div:eq(1) > a").text()
+    console.log(school)
+    if (school !== "Stony Brook University (SUNY)"){
+        if (school.includes("Stony Brook")){
+            throw new Error("Medical schools under Stony Brook are not supported!")
+        }
+        throw new Error("Professor is not from Stony Brook!")
+    }
     const firstName = $("div:first > div:first > div:first > div:eq(2) > div:eq(1) > div:first > div:eq(1) > div:first > span:first").text()
     const lastName = $("div:first > div:first > div:first > div:eq(2) > div:eq(1) > div:first > div:eq(1) > div:first > span:last").text()
     const department = $("div:first > div:first > div:first > div:eq(2) > div:eq(1) > div:first > div:eq(1) > div:eq(1) > span > a > b").text()
@@ -47,17 +55,21 @@ export async function POST(req) {
     const data = await req.json()
     const source = data.source //link to page being scraped
     try {
-        const res = await fetch(source);
-        const html = await res.text()
-
-        let scrapedData
+    const res = await fetch(source);
+    const html = await res.text()
+    
+    let scrapedData
         if (source.includes("https://www.ratemyprofessors.com/")){
-            scrapedData = parseRMP(html)
+            try{
+                scrapedData = parseRMP(html)
+                return NextResponse.json({data:scrapedData})
+            } catch (e){
+                return NextResponse.json({data:"", message:e.message})
+            }
         } else {
-            return NextResponse.json({message:"not from ratemyprofessors.com"})
+            return NextResponse.json({data:"", message:"Invalid Link, must be from ratemyprofessors.com"})
         }
-        return NextResponse.json({ data: scrapedData});
-    } catch (error) {
-        return NextResponse.json({ data: error.message });
+    } catch (e) {
+        return NextResponse.json({ data:"", message:"Invalid Link"});
     }
 }
