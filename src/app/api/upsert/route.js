@@ -20,7 +20,7 @@ export async function POST(req){
         const professor = data.professor   
     
         const response = await openai.embeddings.create({
-            input:profToMessage(professor),
+            input: profToMessage(professor),
             model: "text-embedding-3-small",
         })
         const embedding = response.data[0].embedding
@@ -43,7 +43,6 @@ export async function POST(req){
         }
         const index = pc.index("scraper")
 
-        // TODO: check if the data for a professor already exists
         const id = pc_data.id
         const fetched = await index.fetch([id]) 
         if (!fetched.records.id){
@@ -53,7 +52,6 @@ export async function POST(req){
             return NextResponse.json({data:fetched})
         }
     } catch (error){
-        console.log(error.message)
         return NextResponse.json({data:error.message})
     }
 }

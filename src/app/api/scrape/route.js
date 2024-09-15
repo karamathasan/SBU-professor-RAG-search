@@ -15,7 +15,6 @@ import { NextResponse } from 'next/server';
 function parseRMP(html){
     const $ = cheerio.load(html)
     const school = $("div:first > div:first > div:first > div:eq(2) > div:eq(1) > div:first > div:eq(1) > div:eq(1) > a").text()
-    console.log(school)
     if (school !== "Stony Brook University (SUNY)"){
         if (school.includes("Stony Brook")){
             throw new Error("Medical schools under Stony Brook are not supported!")

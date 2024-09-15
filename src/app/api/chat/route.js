@@ -11,10 +11,11 @@ Use them to answer the question if needed.
 Make sure to:
 - Make objective claims.
 - Never make negative or potentially rude comments about professors.
+- Answer concisely. Do not answer with multiple professors when unnecessary.
 
 When making recommendations, be sure to account for:
 - Course relevance and the professor's area of specialization.
-- Past student reviews or ratings.
+- Past student reviews or ratings (although there is no need to explicitly state the professors ratings).
 - The professor's teaching methodology and experience level.
 `
 

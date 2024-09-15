@@ -33,9 +33,9 @@ export default function Home() {
     }).then(async (json)=>{
       const professor = json.data
       const message = json.message
-      if (professor !== "" && message){
+      if (professor !== "" && !message){
+        await upsert(professor)
         toast.success("Data successfully scraped!")
-        // await upsert(professor)
       } else {
         toast.error(message)
       }
