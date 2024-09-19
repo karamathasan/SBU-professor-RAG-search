@@ -49,12 +49,12 @@ export async function POST(req) {
     `
   })
 
-  latest += context
+  const content = latest + context
   const completion = await openai.chat.completions.create({
     messages:[
       {role:"system",content:systemPrompt},
       ...previous,
-      {role:"user",content:latest}
+      {role:"user",content:content}
     ],
     model: "gpt-4",
     stream: false

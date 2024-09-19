@@ -5,6 +5,7 @@ dotenv.config()
 
 // embed input text to vector
 export async function POST(req) {
+  try {
     const data = await req.json()
     const text = data.text
     const openai = new OpenAI({apiKey:process.env.OPENAI_API_KEY})
@@ -13,6 +14,10 @@ export async function POST(req) {
         input: text,
         encoding_format: 'float',
       })
-
+  
     return NextResponse.json({data:embedding})
+  } catch (error) {
+    return NextResponse.json({data:error.message})
+  }
+
 }

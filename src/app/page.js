@@ -67,6 +67,10 @@ export default function Home() {
       body: JSON.stringify({
         text:profToMessage(professor)
       })
+    }).then(async (res)=>{
+      const json = await res.json()
+      console.log(json.data)
+      return json.data
     })
     await fetch("/api/upsert",{
       method:"POST",
@@ -74,11 +78,12 @@ export default function Home() {
         "Content-Type":"application/json"
       },
       body: JSON.stringify({
+        professor:professor,
         professor_embed:professor_embed
       })
     }).then(async (res)=>{
       const json = await res.json()
-      // console.log(json.data)
+      console.log(json.data)
     })
   }
 

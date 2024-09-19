@@ -10,6 +10,7 @@ export async function POST(req){
     try { 
         const pc = new Pinecone({apiKey:process.env.PINECONE_API_KEY})
         const data = await req.json()
+        const professor = data.professor
         const professor_embed = data.professor_embed
         // const professor = data.professor   
     
