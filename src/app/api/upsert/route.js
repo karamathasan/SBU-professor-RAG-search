@@ -6,27 +6,21 @@ dotenv.config()
 
 //upserts the professor review into the database
 
-// export async function POST(req){
-//     const data = await req.json()
-//     const professor = data.professor
-//     return NextResponse.json({data:profToString(professor)})
-// }
-
 export async function POST(req){
     try { 
         const pc = new Pinecone({apiKey:process.env.PINECONE_API_KEY})
-        const openai = new OpenAI({apiKey:process.env.OPENAI_API_KEY})
         const data = await req.json()
-        const professor = data.professor   
+        const professor_embed = data.professor_embed
+        // const professor = data.professor   
     
-        const response = await openai.embeddings.create({
-            input: profToMessage(professor),
-            model: "text-embedding-3-small",
-        })
-        const embedding = response.data[0].embedding
+        // const response = await openai.embeddings.create({
+        //     input: profToMessage(professor),
+        //     model: "text-embedding-3-small",
+        // })
+        const vector = professor_embed.data[0].embedding
 
         const pc_data = {
-            "values":embedding,
+            "values":vector,
             "id":professor.name,
             "metadata":{
                 "name":professor.name,
@@ -56,17 +50,17 @@ export async function POST(req){
     }
 }
 
-function profToMessage(professor){
-    const {name, department, courses, ratings, reviews} = professor
-    let result = `${name} is a professor in the ${department} and teaches the following courses:`
-    courses.forEach(course => {
-        result +=`${course}`
-    });
-    result += `. Here are previous student reviews:`
-    reviews.forEach((review, i) => {
-        result += ` "${review}", rating: ${ratings[i]}/5;`
-    })
-    return result
-}
+// function profToMessage(professor){
+//     const {name, department, courses, ratings, reviews} = professor
+//     let result = `${name} is a professor in the ${department} and teaches the following courses:`
+//     courses.forEach(course => {
+//         result +=`${course}`
+//     });
+//     result += `. Here are previous student reviews:`
+//     reviews.forEach((review, i) => {
+//         result += ` "${review}", rating: ${ratings[i]}/5;`
+//     })
+//     return result
+// }
 
 

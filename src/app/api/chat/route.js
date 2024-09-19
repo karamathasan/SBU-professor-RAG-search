@@ -20,52 +20,97 @@ When making recommendations, be sure to account for:
 `
 
 export async function POST(req) {
-    const data = await req.json()
-    const messages = data.messages
+  const data = await req.json()
+  const previous = data.previous
+  const latest = data.latest
+  const latest_embedded = data.latest_embedded
 
-    const openai = new OpenAI({apiKey:process.env.OPENAI_API_KEY})
+  const openai = new OpenAI({apiKey:process.env.OPENAI_API_KEY})
 
-    const pc = new Pinecone({apiKey:process.env.PINECONE_API_KEY})
-    const index = pc.index('scraper')
+  const pc = new Pinecone({apiKey:process.env.PINECONE_API_KEY})
+  const index = pc.index('scraper')
 
-    let latest = messages.pop().content
+  const results = await index.query({
+    topK:3,
+    vector:latest_embedded.data[0].embedding,
+    includeMetadata:true
+  })
 
-    const embedding = await openai.embeddings.create({
-        model: 'text-embedding-3-small',
-        input: latest,
-        encoding_format: 'float',
-      })
+  //TODO: prevent this message from becoming too long
+  let context = ''
+  results.matches.forEach((match)=>{
+    context +=`
+    \n\n
+    Professor: ${match.id}
+    Department: ${match.metadata.department}
+    Courses: ${match.metadata.courses}
+    Ratings: ${match.metadata.ratings}
+    Reviews: ${match.metadata.reviews}      
+    `
+  })
 
-    const results = await index.query({
-      topK:3,
-      vector:embedding.data[0].embedding,
-      includeMetadata:true
-    })
-
-    //TODO: prevent this message from becoming too long
-    let context = ''
-    results.matches.forEach((match)=>{
-      context +=`
-      \n\n
-      Professor: ${match.id}
-      Department: ${match.metadata.department}
-      Courses: ${match.metadata.courses}
-      Ratings: ${match.metadata.ratings}
-      Reviews: ${match.metadata.reviews}      
-      `
-    })
-
-    latest += context
-    const completion = await openai.chat.completions.create({
-      messages:[
-        {role:"system",content:systemPrompt},
-        ...messages,
-        {role:"user",content:latest}
-      ],
-      model: "gpt-4",
-      stream: false
-    })
-    const chatResponse = completion.choices[0].message.content
-    console.log(chatResponse)
-    return NextResponse.json({data:chatResponse})
+  latest += context
+  const completion = await openai.chat.completions.create({
+    messages:[
+      {role:"system",content:systemPrompt},
+      ...previous,
+      {role:"user",content:latest}
+    ],
+    model: "gpt-4",
+    stream: false
+  })
+  const chatResponse = completion.choices[0].message.content
+  console.log(chatResponse)
+  return NextResponse.json({data:chatResponse})
 }
+
+// export async function POST(req) {
+//     const data = await req.json()
+//     const messages = data.messages
+
+//     const openai = new OpenAI({apiKey:process.env.OPENAI_API_KEY})
+
+//     const pc = new Pinecone({apiKey:process.env.PINECONE_API_KEY})
+//     const index = pc.index('scraper')
+
+//     let latest = messages.pop().content
+
+//     const embedding = await openai.embeddings.create({
+//         model: 'text-embedding-3-small',
+//         input: latest,
+//         encoding_format: 'float',
+//       })
+
+//     const results = await index.query({
+//       topK:3,
+//       vector:embedding.data[0].embedding,
+//       includeMetadata:true
+//     })
+
+//     //TODO: prevent this message from becoming too long
+//     let context = ''
+//     results.matches.forEach((match)=>{
+//       context +=`
+//       \n\n
+//       Professor: ${match.id}
+//       Department: ${match.metadata.department}
+//       Courses: ${match.metadata.courses}
+//       Ratings: ${match.metadata.ratings}
+//       Reviews: ${match.metadata.reviews}      
+//       `
+//     })
+
+//     latest += context
+//     const completion = await openai.chat.completions.create({
+//       messages:[
+//         {role:"system",content:systemPrompt},
+//         ...messages,
+//         {role:"user",content:latest}
+//       ],
+//       model: "gpt-4",
+//       stream: false
+//     })
+//     const chatResponse = completion.choices[0].message.content
+//     console.log(chatResponse)
+//     return NextResponse.json({data:chatResponse})
+// }

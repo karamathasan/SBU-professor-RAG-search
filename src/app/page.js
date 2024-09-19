@@ -5,7 +5,7 @@ import Message from "./components/message";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m, motion } from "framer-motion";
 import Background from "./components/background";
 import { Dialog,DialogPanel,DialogBackdrop } from "@headlessui/react";
 import toast from "react-hot-toast";
@@ -17,6 +17,19 @@ export default function Home() {
 
   const [scrapeOpen,setScrapeOpen] = useState(false)
   const [reviewOpen,setReviewOpen] = useState(false)
+
+  function profToMessage(professor){
+    const {name, department, courses, ratings, reviews} = professor
+    let result = `${name} is a professor in the ${department} and teaches the following courses:`
+    courses.forEach(course => {
+        result +=`${course}`
+    });
+    result += `. Here are previous student reviews:`
+    reviews.forEach((review, i) => {
+        result += ` "${review}", rating: ${ratings[i]}/5;`
+    })
+    return result
+  }
 
   const scrape = async()=>{
     if (!link){return}
@@ -46,13 +59,22 @@ export default function Home() {
 
   const upsert = async (professor)=>{
     if (!professor){return}
+    const professor_embed = await fetch("/api/embed",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify({
+        text:profToMessage(professor)
+      })
+    })
     await fetch("/api/upsert",{
       method:"POST",
       headers:{
         "Content-Type":"application/json"
       },
       body: JSON.stringify({
-        professor:professor
+        professor_embed:professor_embed
       })
     }).then(async (res)=>{
       const json = await res.json()
@@ -64,18 +86,31 @@ export default function Home() {
     if (!input || input.length === 0){return}   
     
     const storedInput = input
+    const previous_messages = messages
     setInput('')
     setMessages((messages)=>[
       ...messages,{role:'user',content:storedInput}
     ])
-    
+    const latest = storedInput
+    const latest_embed = await fetch("/api/embed",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        text:latest
+      })
+    })
     await fetch("/api/chat",{
       method:"POST",
       headers:{
         "Content-Type":"application/json"
       },
       body:JSON.stringify({
-        messages:[...messages, {role:'user',content:storedInput}]
+        // messages:[...messages, {role:'user',content:storedInput}]
+        previous:previous_messages,
+        latest:latest,
+        latest_embed:latest_embed
       })
     }).then(async (res)=>{
       const json = await res.json()
