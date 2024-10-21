@@ -31,6 +31,18 @@ export default function Home() {
     return result
   }
 
+  const crawl = async () =>{
+    await fetch("api/crawl",{
+      method:"GET",
+      headers:{
+        "Content-Type":"application/json"
+      }
+    }).then(async (data)=>{
+      const json = await data.json()
+      console.log(json)
+    })
+  }
+
   const scrape = async()=>{
     if (!link){return}
     await fetch("/api/scrape",{
@@ -106,6 +118,7 @@ export default function Home() {
         text:latest
       })
     })
+
     await fetch("/api/chat",{
       method:"POST",
       headers:{
@@ -229,7 +242,9 @@ export default function Home() {
           <div className="flex flex-row justify-around w-full max-w-[80vw] h-full">
             <div className="basis-1/2 flex flex-row justify-start">
               <button onClick={()=>{setScrapeOpen(true)}} className="bg-[#990000] hover:bg-[#aa0000] h-full px-8"> Scrape Link </button>
+              <button onClick={crawl} className="bg-[#990000] hover:bg-[#aa0000] h-full px-8"> Begin Crawl </button>
               {/* <button onClick={()=>{setReviewOpen(true)}} className="bg-[#990000] hover:bg-[#aa0000] h-full px-8"> Add a Review </button> */}
+              
             </div>
             <div className="basis-1/2 flex flex-row justify-end">
               <button onClick={clearChat} className="bg-[#990000] hover:bg-[#aa0000] px-8"> Reset Chat</button>
